@@ -61,3 +61,15 @@ body {
   padding: 15px;
   width: 200px;
 }
+.etiquetas {
+  margin-top: 10px;
+}
+
+.tag {
+  display: inline-block;
+  background: #eee;
+  padding: 5px 10px;
+  margin: 3px;
+  border-radius: 10px;
+  font-size: 12px;
+}
