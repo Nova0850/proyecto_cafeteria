@@ -9,6 +9,9 @@ db.sqlite3
 env/
 venv/
 
+# Archivos de media
+media/
+
 # ======================
 # REACT / NODE
 # ======================
