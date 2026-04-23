@@ -73,3 +73,60 @@ body {
   border-radius: 10px;
   font-size: 12px;
 }
+/* 🔥 GALERÍA INSTAGRAM */
+.grid-galeria {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+/* POST */
+.post {
+  background: white;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  overflow: hidden;
+}
+
+/* HEADER */
+.post-header {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  font-weight: bold;
+}
+
+/* AVATAR */
+.avatar {
+  width: 35px;
+  height: 35px;
+  background: #ccc;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+/* IMAGEN */
+.post-img {
+  width: 100%;
+  height: 300px;
+  object-fit: cover;
+}
+
+/* DESCRIPCIÓN */
+.post-body {
+  padding: 10px;
+}
+.topbar {
+  position: absolute;
+  top: 10px;
+  right: 20px;
+}
+
+.topbar button {
+  padding: 8px 12px;
+  background: #333;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}

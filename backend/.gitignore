@@ -1,0 +1,25 @@
+__pycache__/
+*.pyc
+db.sqlite3
+.env
+venv/
+media/
+# Python
+__pycache__/
+*.pyc
+
+# Base de datos
+db.sqlite3
+
+# Entornos virtuales
+venv/
+.env
+
+# Archivos de media (imágenes)
+media/
+
+# Logs
+*.log
+
+# VS Code
+.vscode/

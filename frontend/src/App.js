@@ -8,41 +8,100 @@ function App() {
   const [vista, setVista] = useState("inicio");
   const [config, setConfig] = useState(null);
 
-  // 🔹 OBTENER PRODUCTOS (MENÚ)
+  // 🔥 GALERÍA
+  const [galeria, setGaleria] = useState([]);
+  const [nuevaDescripcion, setNuevaDescripcion] = useState("");
+  const [imagen, setImagen] = useState(null);
+
+  // 🔐 LOGIN REAL
+  const [usuario, setUsuario] = useState(null);
+
+  // 🔹 PRODUCTOS
   const obtenerProductos = () => {
     let url = "http://127.0.0.1:8000/api/productos/?";
 
-    if (categoria !== "todos") {
-      url += `categoria=${categoria}&`;
-    }
-
-    if (buscar) {
-      url += `buscar=${buscar}`;
-    }
+    if (categoria !== "todos") url += `categoria=${categoria}&`;
+    if (buscar) url += `buscar=${buscar}`;
 
     fetch(url)
       .then(res => res.json())
       .then(data => setProductos(data));
   };
 
-  // 🔹 CONTROL DE VISTA
+  // 🔹 GALERÍA
+  const obtenerGaleria = () => {
+    fetch("http://127.0.0.1:8000/api/galeria/")
+      .then(res => res.json())
+      .then(data => setGaleria(data));
+  };
+
+  // 🔐 LOGIN REAL (BACKEND)
+  const login = async () => {
+    const username = prompt("Usuario");
+    const password = prompt("Contraseña");
+
+    const res = await fetch("http://127.0.0.1:8000/api/login/", {
+      method: "POST",
+      credentials: "include", // 🔥 clave
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ username, password })
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      alert("Login correcto");
+      setUsuario(username);
+    } else {
+      alert("Error en login");
+    }
+  };
+
+  // 🔥 PUBLICAR (CORREGIDO)
+  const publicarPost = async () => {
+    if (!usuario) {
+      alert("Debes iniciar sesión");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("descripcion", nuevaDescripcion);
+    formData.append("imagen", imagen);
+
+    const res = await fetch("http://127.0.0.1:8000/api/galeria/", {
+      method: "POST",
+      credentials: "include", // 🔥 clave
+      body: formData
+    });
+
+    if (res.ok) {
+      alert("Publicado");
+      obtenerGaleria();
+      setNuevaDescripcion("");
+    } else {
+      alert("Error al publicar");
+    }
+  };
+
+  // 🔹 CONTROL
   useEffect(() => {
     if (vista === "menu") {
       obtenerProductos();
     } 
-    
     else if (vista === "inicio") {
-      // 🔥 PRODUCTOS DESTACADOS
       fetch("http://127.0.0.1:8000/api/destacados/")
         .then(res => res.json())
         .then(data => setProductos(data));
 
-      // 🔥 CONFIGURACIÓN (MAPA + HORARIOS)
       fetch("http://127.0.0.1:8000/api/configuracion/")
         .then(res => res.json())
         .then(data => setConfig(data));
+    } 
+    else if (vista === "galeria") {
+      obtenerGaleria();
     }
-
   }, [categoria, buscar, vista]);
 
   return (
@@ -54,11 +113,23 @@ function App() {
         <ul>
           <li onClick={() => setVista("inicio")}>Inicio</li>
           <li onClick={() => setVista("menu")}>Menú</li>
+          <li onClick={() => setVista("galeria")}>Galería</li>
         </ul>
       </div>
 
       {/* CONTENIDO */}
       <div className="content">
+
+        {/* 🔐 LOGIN */}
+        <div className="topbar">
+          {usuario ? (
+            <span>👤 {usuario}</span>
+          ) : (
+            <button onClick={login}>
+              Iniciar sesión
+            </button>
+          )}
+        </div>
 
         {/* 🔹 INICIO */}
         {vista === "inicio" && (
@@ -70,7 +141,6 @@ function App() {
             <div className="grid">
               {productos.map((p) => (
                 <div className="card" key={p.id}>
-                  
                   <img
                     src={
                       p.imagen
@@ -78,62 +148,25 @@ function App() {
                         : "https://via.placeholder.com/150"
                     }
                     alt={p.nombre}
-                    className="imagen"
                   />
-
                   <h3>{p.nombre}</h3>
                   <p>{p.descripcion}</p>
-
-                  {/* 🔥 ETIQUETAS */}
-                  <div className="etiquetas">
-                    {p.etiquetas &&
-                      p.etiquetas.map((et) => (
-                        <span key={et.id} className="tag">
-                          {et.nombre}
-                        </span>
-                      ))}
-                  </div>
-
                   <span>Bs. {p.precio}</span>
                 </div>
               ))}
             </div>
 
-            {/* 🔥 ENCUÉNTRANOS DEBAJO */}
             {config && (
               <div className="mapa-section">
                 <h2>Encuéntranos</h2>
+                <p>{config.direccion}</p>
 
-                <h3>{config.nombre}</h3>
-                <p><strong>Dirección:</strong> {config.direccion}</p>
-
-                <h4>Horarios</h4>
-                <p>Lunes a Viernes: {config.horario_lunes_viernes}</p>
-                <p>Sábado: {config.horario_sabado}</p>
-                <p>Domingo: {config.horario_domingo}</p>
-
-                {/* 🗺️ MAPA */}
-                <div className="mapa">
-                  <iframe
-                    title="mapa"
-                    width="100%"
-                    height="400"
-                    style={{ border: 0 }}
-                    loading="lazy"
-                    allowFullScreen
-                    src={`https://www.google.com/maps?q=${config.latitud},${config.longitud}&z=15&output=embed`}
-                  ></iframe>
-                </div>
-
-                {/* 🔥 BOTÓN GOOGLE MAPS */}
-                <a
-                  href={`https://www.google.com/maps?q=${config.latitud},${config.longitud}`}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="btn-maps"
-                >
-                  Cómo llegar
-                </a>
+                <iframe
+                  title="mapa"
+                  width="100%"
+                  height="400"
+                  src={`https://www.google.com/maps?q=${config.latitud},${config.longitud}&z=15&output=embed`}
+                ></iframe>
               </div>
             )}
           </>
@@ -142,16 +175,14 @@ function App() {
         {/* 🔹 MENÚ */}
         {vista === "menu" && (
           <>
-            <h1>Nuestro Menú</h1>
+            <h1>Menú</h1>
 
             <input
-              className="search"
-              type="text"
               placeholder="Buscar..."
               onChange={(e) => setBuscar(e.target.value)}
             />
 
-            <div className="buttons">
+            <div>
               <button onClick={() => setCategoria("todos")}>Todos</button>
               <button onClick={() => setCategoria("bebida")}>Bebidas</button>
               <button onClick={() => setCategoria("comida")}>Comida</button>
@@ -161,30 +192,66 @@ function App() {
             <div className="grid">
               {productos.map((p) => (
                 <div className="card" key={p.id}>
-                  
-                  <img
-                    src={
-                      p.imagen
-                        ? `http://127.0.0.1:8000${p.imagen}`
-                        : "https://via.placeholder.com/150"
-                    }
-                    alt={p.nombre}
-                    className="imagen"
-                  />
-
+                  <img src={`http://127.0.0.1:8000${p.imagen}`} alt="" />
                   <h3>{p.nombre}</h3>
                   <p>{p.descripcion}</p>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
 
-                  <div className="etiquetas">
-                    {p.etiquetas &&
-                      p.etiquetas.map((et) => (
-                        <span key={et.id} className="tag">
-                          {et.nombre}
-                        </span>
-                      ))}
+        {/* 🔥 GALERÍA */}
+        {vista === "galeria" && (
+          <>
+            <h1>Galería</h1>
+
+            {!usuario && (
+              <p style={{ color: "red" }}>
+                ⚠️ Debes iniciar sesión para publicar
+              </p>
+            )}
+
+            {/* FORM */}
+            {usuario && (
+              <div className="form-post">
+                <textarea
+                  placeholder="Escribe tu experiencia..."
+                  value={nuevaDescripcion}
+                  onChange={(e) => setNuevaDescripcion(e.target.value)}
+                />
+
+                <input
+                  type="file"
+                  onChange={(e) => setImagen(e.target.files[0])}
+                />
+
+                <button onClick={publicarPost}>
+                  Publicar
+                </button>
+              </div>
+            )}
+
+            {/* POSTS */}
+            <div className="galeria">
+              {galeria.map((g) => (
+                <div className="post" key={g.id}>
+
+                  <div className="post-header">
+                    <div className="avatar"></div>
+                    <h4>{g.usuario}</h4>
                   </div>
 
-                  <span>Bs. {p.precio}</span>
+                  <img
+                    src={`http://127.0.0.1:8000${g.imagen}`}
+                    alt=""
+                    className="post-img"
+                  />
+
+                  <div className="post-body">
+                    <p>{g.descripcion}</p>
+                  </div>
+
                 </div>
               ))}
             </div>

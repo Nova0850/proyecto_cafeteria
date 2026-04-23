@@ -1,6 +1,6 @@
 # serializers.py
 from rest_framework import serializers
-from .models import Producto, Etiqueta ,Configuracion
+from .models import Producto, Etiqueta ,Configuracion,Galeria  
 #menu
         
 class EtiquetaSerializer(serializers.ModelSerializer):
@@ -18,4 +18,8 @@ class ProductoSerializer(serializers.ModelSerializer):
 class ConfiguracionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Configuracion
+        fields = '__all__'
+class GaleriaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Galeria
         fields = '__all__'

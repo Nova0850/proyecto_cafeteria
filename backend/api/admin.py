@@ -1,5 +1,6 @@
 from django.contrib import admin
-from .models import Producto, Etiqueta ,Configuracion
+from .models import Producto, Etiqueta, Configuracion, Galeria
+
 # Register your models here.
 #menu
 
@@ -8,3 +9,4 @@ class ProductoAdmin(admin.ModelAdmin):
     filter_vertical = ('etiquetas',)
 admin.site.register(Etiqueta)
 admin.site.register(Configuracion)
+admin.site.register(Galeria)
