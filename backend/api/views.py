@@ -1,81 +1,219 @@
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated, AllowAny
-from rest_framework.response import Response
-
-from .models import Producto, Configuracion, Galeria
-from .serializers import ProductoSerializer, ConfiguracionSerializer, GaleriaSerializer
-from django.contrib.auth import authenticate, login
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from .models import Producto, Configuracion, Galeria,Contacto,QuienesSomos, Diferencial
+from .serializers import (
+    ProductoSerializer,
+    ConfiguracionSerializer,
+    GaleriaSerializer,
+    ContactoSerializer,
+    QuienesSomosSerializer,
+    DiferencialSerializer
 
-# 🔹 PRODUCTOS
+)
+
+from django.contrib.auth.models import User
+from django.contrib.auth import authenticate, login
+
+
+# ---------------- PRODUCTOS ----------------
+
 @api_view(['GET'])
 def lista_productos(request):
+
     categoria = request.GET.get('categoria')
     buscar = request.GET.get('buscar')
 
     productos = Producto.objects.all()
 
     if categoria and categoria.lower() != "todos":
-        productos = productos.filter(categoria__iexact=categoria)
+        productos = productos.filter(
+            categoria__iexact=categoria
+        )
 
     if buscar:
-        productos = productos.filter(nombre__icontains=buscar)
+        productos = productos.filter(
+            nombre__icontains=buscar
+        )
 
-    serializer = ProductoSerializer(productos, many=True)
+    serializer = ProductoSerializer(
+        productos,
+        many=True
+    )
+
     return Response(serializer.data)
 
 
-# 🔹 DESTACADOS
+
+# ---------------- DESTACADOS ----------------
+
 @api_view(['GET'])
 def productos_destacados(request):
-    productos = Producto.objects.filter(destacado=True)
-    serializer = ProductoSerializer(productos, many=True)
+
+    productos = Producto.objects.filter(
+        destacado=True
+    )
+
+    serializer = ProductoSerializer(
+        productos,
+        many=True
+    )
+
     return Response(serializer.data)
 
 
-# 🔹 CONFIGURACIÓN
+
+# ---------------- CONFIG ----------------
+
 @api_view(['GET'])
 def obtener_configuracion(request):
+
     config = Configuracion.objects.first()
-    serializer = ConfiguracionSerializer(config)
+
+    serializer = ConfiguracionSerializer(
+        config
+    )
+
     return Response(serializer.data)
 
 
-# 🔥 GALERÍA (IMPORTANTE)
-@api_view(['GET', 'POST'])
+
+# ---------------- GALERIA ----------------
+
+@api_view(['GET','POST'])
 def lista_galeria(request):
 
-    if request.method == 'GET':
-        galeria = Galeria.objects.all()
-        serializer = GaleriaSerializer(galeria, many=True)
-        return Response(serializer.data)
+    # VER HISTORIAS
+    if request.method == "GET":
 
-    elif request.method == 'POST':
+        galeria = Galeria.objects.all().order_by("-id")
 
-        if not request.user.is_authenticated:
-            return Response({"error": "Debes iniciar sesión"}, status=403)
+        serializer = GaleriaSerializer(
+            galeria,
+            many=True
+        )
+
+        return Response(
+            serializer.data
+        )
+
+
+    # PUBLICAR HISTORIA
+    if request.method == "POST":
+
+        from django.contrib.auth.models import User
+
+        username = request.data.get("usuario")
+
+        user = User.objects.get(
+            username=username
+        )
 
         data = request.data.copy()
-        data['usuario'] = request.user.id  # 🔥 usuario automático
 
-        serializer = GaleriaSerializer(data=data)
+        serializer = GaleriaSerializer(
+            data=data
+        )
 
         if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
 
-        return Response(serializer.errors)
-    
+            serializer.save(
+                usuario=user
+            )
+
+            return Response(
+                serializer.data
+            )
+
+        return Response(
+            serializer.errors,
+            status=400
+        )
+
+
+# ---------------- REGISTRO ----------------
+
+# REGISTRO
 @api_view(['POST'])
-def login_usuario(request):
+def registro_usuario(request):
+
     username = request.data.get("username")
     password = request.data.get("password")
 
-    user = authenticate(username=username, password=password)
+    if not username or not password:
+        return Response(
+            {"error":"faltan datos"},
+            status=400
+        )
 
-    if user is not None:
-        login(request, user)
-        return Response({"mensaje": "Login correcto"})
-    else:
-        return Response({"error": "Credenciales inválidas"}, status=400)
+    if User.objects.filter(username=username).exists():
+        return Response(
+            {"error":"usuario ya existe"},
+            status=400
+        )
+
+    user = User.objects.create_user(
+        username=username,
+        password=password
+    )
+
+    return Response({
+        "usuario": user.username
+    })
+
+
+# LOGIN
+@api_view(['POST'])
+def login_usuario(request):
+
+    username=request.data.get("username")
+    password=request.data.get("password")
+
+    user=authenticate(
+        username=username,
+        password=password
+    )
+
+    if user:
+        login(request,user)
+
+        return Response({
+            "usuario":user.username
+        })
+
+    return Response(
+        {"error":"credenciales invalidas"},
+        status=400
+    )
+
+
+
+@api_view(["GET"])
+def contacto_api(request):
+    contacto = Contacto.objects.first()
+    serializer = ContactoSerializer(contacto)
+    return Response(serializer.data)
+
+@api_view(['GET'])
+def quienes_somos_api(request):
+
+    quienes = QuienesSomos.objects.first()
+    serializer = QuienesSomosSerializer(quienes)
+
+    return Response(
+        serializer.data
+    )
+
+
+@api_view(['GET'])
+def diferencial_api(request):
+
+    items = Diferencial.objects.all()
+
+    serializer = DiferencialSerializer(
+        items,
+        many=True
+    )
+
+    return Response(
+        serializer.data
+    )
