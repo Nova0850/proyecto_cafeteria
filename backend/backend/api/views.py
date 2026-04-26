@@ -1,23 +1,14 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from .models import Producto, Configuracion, Galeria,Contacto,QuienesSomos, Diferencial
 from .serializers import (
     ProductoSerializer,
     ConfiguracionSerializer,
     GaleriaSerializer,
     ContactoSerializer,
     QuienesSomosSerializer,
-    DiferencialSerializer,
-    PreguntaFrecuenteSerializer
+    DiferencialSerializer
 
-)
-from .models import (
-    Producto,
-    Configuracion,
-    Galeria,
-    Contacto,
-    QuienesSomos,
-    Diferencial,
-    PreguntaFrecuente
 )
 
 from django.contrib.auth.models import User
@@ -226,21 +217,3 @@ def diferencial_api(request):
     return Response(
         serializer.data
     )
-@api_view(['GET'])
-def preguntas_frecuentes_api(request):
-
-    buscar = request.GET.get("buscar")
-
-    preguntas = PreguntaFrecuente.objects.all()
-
-    if buscar:
-        preguntas = preguntas.filter(
-            pregunta__icontains=buscar
-        )
-
-    serializer = PreguntaFrecuenteSerializer(
-        preguntas,
-        many=True
-    )
-
-    return Response(serializer.data)

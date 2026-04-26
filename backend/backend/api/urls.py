@@ -11,8 +11,4 @@ urlpatterns = [
 path("contacto/", contacto_api),
 path('quienes-somos/', quienes_somos_api),
 path('diferencial/', diferencial_api),
-path(
-    'preguntas/',
-    preguntas_frecuentes_api
-),
 ]

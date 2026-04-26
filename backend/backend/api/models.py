@@ -69,8 +69,9 @@ class Contacto(models.Model):
 
     def __str__(self):
         return "Contacto Cafetería"
-    
-    
+    from django.db import models
+
+
 class QuienesSomos(models.Model):
     titulo = models.CharField(
         max_length=150,
@@ -111,14 +112,3 @@ class Diferencial(models.Model):
 
     def __str__(self):
         return self.titulo
-    
-class PreguntaFrecuente(models.Model):
-    pregunta = models.CharField(max_length=300)
-    respuesta = models.TextField()
-    orden = models.PositiveIntegerField(default=0)
-
-    class Meta:
-        ordering = ['orden']
-
-    def __str__(self):
-        return self.pregunta

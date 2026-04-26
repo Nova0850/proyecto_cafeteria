@@ -1,25 +1,37 @@
+# ======================
+# DJANGO / PYTHON
+# ======================
 __pycache__/
 *.pyc
-db.sqlite3
-.env
-venv/
-media/
-# Python
-__pycache__/
-*.pyc
-
-# Base de datos
 db.sqlite3
 
 # Entornos virtuales
+env/
 venv/
-.env
 
-# Archivos de media (imágenes)
+# Archivos de media
 media/
 
-# Logs
+# ======================
+# REACT / NODE
+# ======================
+frontend/node_modules/
+frontend/build/
+
+# ======================
+# LOGS
+# ======================
 *.log
 
-# VS Code
+# ======================
+# ENV
+# ======================
+.env
+*.env
+
+# ======================
+# EDITORES
+# ======================
 .vscode/
+.idea/
+.DS_Store

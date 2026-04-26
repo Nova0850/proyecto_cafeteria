@@ -31,10 +31,6 @@ const [password,setPassword]=useState("");
 
 const [quienes,setQuienes] = useState(null);
 const [diferencial,setDiferencial] = useState([]);
-
-
-const [preguntas,setPreguntas]=useState([]);
-const [buscarPregunta,setBuscarPregunta]=useState("");
 /* ================= PRODUCTOS ================= */
 
 const obtenerProductos=()=>{
@@ -348,19 +344,10 @@ else if(vista==="galeria"){
 obtenerGaleria();
 }
 
-else if(vista==="preguntas"){
 
-fetch(
-`http://127.0.0.1:8000/api/preguntas/?buscar=${buscarPregunta}`
-)
-.then(res=>res.json())
-.then(data=>setPreguntas(data));
-
-}
 },[
 categoria,
 buscar,
-buscarPregunta,
 vista
 ]);
 
@@ -389,9 +376,6 @@ Menú
 
 <li onClick={()=>setVista("galeria")}>
 Galería
-</li>
-<li onClick={()=>setVista("preguntas")}>
-Preguntas frecuentes
 </li>
 </ul>
 
@@ -876,43 +860,7 @@ className="post-img"
 )}
 
 
-{vista==="preguntas" && (
 
-<>
-
-<h1>Preguntas Frecuentes</h1>
-
-<input
-placeholder="Buscar pregunta..."
-value={buscarPregunta}
-onChange={(e)=>
-setBuscarPregunta(
-e.target.value
-)}
-/>
-
-{preguntas.map((item)=>(
-
-<div
-key={item.id}
-className="faq-card"
->
-
-<h3>
-{item.pregunta}
-</h3>
-
-<p>
-{item.respuesta}
-</p>
-
-</div>
-
-))}
-
-</>
-
-)}
 </div>
 </div>
 
