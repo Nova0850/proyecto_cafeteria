@@ -52,3 +52,73 @@ class Galeria(models.Model):
     descripcion = models.TextField()
     imagen = models.ImageField(upload_to='galeria/')
     categoria = models.CharField(max_length=50, default="general")
+class Contacto(models.Model):
+    telefono = models.CharField(max_length=20)
+    whatsapp = models.CharField(max_length=20)
+
+    instagram = models.URLField()
+    facebook = models.URLField()
+    tiktok = models.URLField()
+
+    mensaje_reserva = models.CharField(
+        max_length=200,
+        default="Hola, quiero hacer una reserva"
+    )
+
+    email = models.EmailField()
+
+    def __str__(self):
+        return "Contacto Cafetería"
+    
+    
+class QuienesSomos(models.Model):
+    titulo = models.CharField(
+        max_length=150,
+        default="Quiénes Somos"
+    )
+
+    descripcion_1 = models.TextField()
+
+    descripcion_2 = models.TextField(
+        blank=True,
+        null=True
+    )
+
+    descripcion_3 = models.TextField(
+        blank=True,
+        null=True
+    )
+
+    frase_destacada = models.CharField(
+        max_length=300,
+        blank=True,
+        null=True
+    )
+
+    imagen = models.ImageField(
+        upload_to='inicio/quienes_somos/',
+        blank=True,
+        null=True
+    )
+
+class Diferencial(models.Model):
+    titulo = models.CharField(max_length=150)
+    descripcion = models.TextField()
+    orden = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ['orden']
+
+    def __str__(self):
+        return self.titulo
+    
+class PreguntaFrecuente(models.Model):
+    pregunta = models.CharField(max_length=300)
+    respuesta = models.TextField()
+    orden = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ['orden']
+
+    def __str__(self):
+        return self.pregunta
